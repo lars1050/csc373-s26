@@ -1,6 +1,6 @@
 from problem import Problem
 
-pruning = False
+constraining = False
 
 class Sudoku(Problem):
     '''
@@ -16,6 +16,7 @@ class Sudoku(Problem):
         '''
         
         self.initial_state = initial_state
+        self.solution = None
         self.max_digit = int(len(initial_state)**0.5)
         print(f'\nSolving a {self.max_digit}x{self.max_digit} puzzle',end=' ')
         print(f'with {initial_state.count(0)} unassigned slots.')
@@ -50,10 +51,6 @@ class Sudoku(Problem):
                 # next set (3 rows down)
                 base = [el+27 for el in base]
         #print(f'boxes {self.boxes}')
-
-        #goal=[2,1,4,3,3,4,1,2,1,3,2,4,4,2,3,1]
-        #print(self.is_goal(goal))
-        #input()
         
     def __str__(self):
         return f'Sudoko {self.initial_state}'
@@ -63,28 +60,32 @@ class Sudoku(Problem):
     
     def is_goal(self, state):
 
-        if pruning:
-            return not 0 in state
-
+        # not done if puzzle has open slots
         if 0 in state:
             return False
 
-        # are all the rows unique
+        # slot filled with only viable numbers...no 0's then done
+        if constraining:
+            self.solution = state
+            return True
+
+        # filled in but could be wrong ... are all the rows unique?
         for row in range(0,len(state),self.max_digit):
             if len(set(state[row:row+self.max_digit])) != self.max_digit :
                 return False
 
-        # are all the columns unique
+        # are all the columns unique?
         for col in range(0,self.max_digit):
             if len(set(state[col:len(state):self.max_digit])) != self.max_digit:
                 return False
 
-        # all all the boxes unique
+        # are all the boxes unique?
         for b in self.boxes:
             if len(set([state[i] for i in b])) != self.max_digit:
                 return False
 
         # it all checked out
+        self.solution = state
         return True
 
     def get_options(self,state,index):
@@ -98,7 +99,7 @@ class Sudoku(Problem):
         # all the possible digits
         digits = [i for i in range(1,self.max_digit+1)]
 
-        if not pruning:
+        if not constraining:
             return digits
 
         start_row = index//self.max_digit * self.max_digit
@@ -162,7 +163,8 @@ class Sudoku(Problem):
         # number left to assign
         return state.count(0)
 
-    def print_state(self,state):
+    def pretty_print(self,state):
+        print(f'in prety\n{state}')
         index = 0
         for r in range(self.max_digit):
             for c in range(self.max_digit):
@@ -171,23 +173,52 @@ class Sudoku(Problem):
             print()
         print()
 
+
+# -------------------------------------------
 # define several problems that we might solve
+blank4 = [
+    0,0, 0,0,
+    0,0, 0,0,
+    0,0, 0,0,
+    0,0, 0,0 ]
+
+blank6 = [
+    0,0,0, 0,0,0,
+    0,0,0, 0,0,0,
+    0,0,0, 0,0,0,
+    0,0,0, 0,0,0,
+    0,0,0, 0,0,0,
+    0,0,0, 0,0,0 ]
+
+blank9 = [
+    0,0,0, 0,0,0, 0,0,0,
+    0,0,0, 0,0,0, 0,0,0,
+    0,0,0, 0,0,0, 0,0,0,
+    0,0,0, 0,0,0, 0,0,0,
+    0,0,0, 0,0,0, 0,0,0,
+    0,0,0, 0,0,0, 0,0,0,
+    0,0,0, 0,0,0, 0,0,0,
+    0,0,0, 0,0,0, 0,0,0,
+    0,0,0, 0,0,0, 0,0,0, ]
+
+
 problem0 = [0,0,0,3, 0,4,0,0, 1,0,0,4, 0,0,3,0]
 
-problem1 = [2,0,0, 6,0,5,
-        0,0,6, 0,1,2,
-        0,5,1, 0,0,3,
-        3,0,4, 0,0,6,
-        0,3,5, 0,0,1,
-        0,0,2, 0,3,4 ]
+problem1 = [
+    2,0,0, 6,0,5,
+    0,0,6, 0,1,2,
+    0,5,1, 0,0,3,
+    3,0,4, 0,0,6,
+    0,3,5, 0,0,1,
+    0,0,2, 0,3,4 ]
 
 problem2 = [
-        2,0,0, 6,0,5,
-        0,0,6, 0,1,2,
-        0,5,1, 0,0,3,
-        3,0,4, 0,0,6,
-        0,3,5, 0,0,1,
-        0,0,2, 0,3,4 ]
+    0,0,5, 0,0,6,
+    0,0,0, 1,4,0,
+    0,0,0, 3,0,2,
+    0,6,0, 0,0,0,
+    0,0,0, 0,2,0,
+    2,0,1, 0,0,0 ]
 
 problem3 = [ 0,7,0, 5,8,3, 0,2,0,
          0,5,9, 2,0,0, 3,0,0,
@@ -200,18 +231,7 @@ problem3 = [ 0,7,0, 5,8,3, 0,2,0,
          5,6,7, 4,2,9, 0,1,3
          ]
 
-problem4 = [ 0,0,0, 5,0,7, 0,0,0,
-         0,4,0, 2,6,3, 0,0,0,
-         1,0,7, 4,0,0, 0,0,0,
-         3,6,0, 0,0,0, 0,4,5,
-         0,0,2, 0,5,0, 7,0,0,
-         7,9,0, 0,0,0, 0,6,2,
-         0,0,0, 0,0,9, 4,0,1,
-         0,0,0, 1,3,4, 0,9,0,
-         0,0,0, 6,0,5, 0,0,0
-         ]
-
-problem5 = [ 0,4,0, 1,0,0, 9,0,0,
+problem4 = [ 0,4,0, 1,0,0, 9,0,0,
          0,0,0, 0,0,0, 0,0,0,
          0,5,9, 0,0,0, 2,1,6,
          0,6,0, 0,0,0, 1,5,0,
@@ -221,26 +241,22 @@ problem5 = [ 0,4,0, 1,0,0, 9,0,0,
          0,3,0, 2,0,0, 0,0,0,
          0,0,7, 0,0,6, 0,0,9 ]
 
-problem6 = [ 0,0,7, 0,0,0, 9,0,0,
-         0,0,0, 1,5,0, 2,0,0,
-         5,0,0, 3,0,0, 0,0,0,
-         0,3,0, 0,0,0, 0,0,0,
-         0,0,5, 0,0,8, 6,0,0,
-         8,4,0, 0,2,5, 0,0,0,
-         0,0,2, 7,0,0, 0,0,0,
-         0,0,0, 0,0,0, 3,8,6,
-         3,0,6, 0,0,0, 0,0,0 ]
+# solved problem2. copy and systematically remove some elements for testing
+problem5 = [
+     4,1,5, 2,3,6, 
+     6,2,3, 1,4,5,
+     1,5,4, 3,6,2,
+     3,6,2, 5,1,4,
+     5,3,6, 4,2,1,
+     2,4,1, 6,5,3 ]
 
-
-
-problem_count = 7
+problem_count = 6
 problems = [ eval('problem'+str(i)) for i in range(0,problem_count) ]
 
 if __name__ == '__main__':
-    
     for p in problems:
         s = Sudoku(p)
-        s.print_state(p)
+        s.pretty_print(p)
         print()
 
 

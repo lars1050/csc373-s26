@@ -4,6 +4,8 @@ from abc import ABC, abstractmethod
 from collections import deque
 import heapq
 
+cyclic = False
+
 class Node:
     """Node in the search tree."""
     
@@ -66,31 +68,35 @@ class TreeSearch(ABC):
     def search(self, problem):
         """Execute tree search algorithm."""
         initial = Node(problem.get_initial_state())
-        print(f'\nStart State: {problem.get_initial_state()}')
+        #print(f'\nStart State: {problem.get_initial_state()}')
         
         if problem.is_goal(initial.state):
             return initial
 
         # add state to frontier -- priority queue
         self.push(initial, problem)
-        explored = set()
+        if cyclic:
+            explored = set()
         nodes_generated = 1
         
         while not self.is_empty():
             # pop based on priority queue
             node = self.pop()
             
-            if str(node.state) in explored:
+            if cyclic and str(node.state) in explored:
                 continue
             
             if problem.is_goal(node.state):
                 print(f"\nNodes generated: {nodes_generated}")
                 return node
             
-            explored.add(str(node.state))
+            if cyclic:
+                explored.add(str(node.state))
             
             for action, state, cost in problem.get_successors(node.state):
-                if str(state) not in explored:
+                if cyclic and str(state) in explored:
+                    continue
+                else:
                     nodes_generated += 1
                     child = Node(state, node, action, node.path_cost + cost)
                     self.push(child, problem)
@@ -147,7 +153,7 @@ def search(problem, algorithm='bfs'):
     start_time = time.perf_counter()
     solution = searcher.search(problem)
     end_time = time.perf_counter()
-    print(f'Execution time: {(end_time-start_time):.4f} seconds')
+    print(f'Execution time: {(end_time-start_time):.6f} seconds')
     return solution
 
 

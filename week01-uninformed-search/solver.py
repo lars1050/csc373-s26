@@ -1,11 +1,8 @@
-
 import search
 
 import cryptarithmetic as crypt
 import sudoku
-from sudoku import Sudoku
-
-import sys              
+from sudoku import Sudoku             
 
 def solve(problem,algo):
     print(f"\n{'-' * 60}")
@@ -13,10 +10,12 @@ def solve(problem,algo):
     print(f"{'-' * 60}")
     
     result = search.search(problem, algo)
-    #problem.pretty_print(result.state)
+    problem.pretty_print(problem.solution)
     problem.show_path(result)
 
 if __name__ == '__main__':
+
+    import sys
 
     # command line arguments [solver.py, problem, problem #, algo]
     if len(sys.argv) < 4:
@@ -40,6 +39,7 @@ if __name__ == '__main__':
         raise Exception
 
     solve(problem,algorithm)
+    
 
 
 

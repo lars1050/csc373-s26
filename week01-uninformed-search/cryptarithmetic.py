@@ -35,6 +35,8 @@ class Cryptarithmetic(Problem):
         # Leading letters can't be 0 -- record those letters
         self.leading = {value[0] for value in problem}
 
+        self.solution = None
+
     def __str__(self):
         return f'Cryptarithmetic: {self.operand1}+{self.operand2} = {self.result}'
 
@@ -51,14 +53,8 @@ class Cryptarithmetic(Problem):
 
 
     def is_goal(self, state):
+        
         """Check if all letters assigned and equation holds."""
-        '''
-        print('in is goal')
-        for x in state:
-            print(x,end=' ')
-        print()
-        '''
-
         assignments, digits = state
 
         # have all the letters been assigned? no -- well not at the goal
@@ -71,7 +67,11 @@ class Cryptarithmetic(Problem):
         val2 = int(''.join(str(assignments[char]) for char in self.operand2))
         sum_result = int(''.join(str(assignments[char]) for char in self.result))
         
-        return val1 + val2 == sum_result
+        if val1 + val2 == sum_result:
+            self.solution = state
+            return True
+        else:
+            return False
 
 
     def get_successors(self, state):
@@ -122,7 +122,6 @@ class Cryptarithmetic(Problem):
         assignments, digits = state
         return len(digits)
 
-    '''
     def pretty_print(self,state) :
         length = len(self.result) + 2
         underscore = "-"*length;
@@ -130,11 +129,15 @@ class Cryptarithmetic(Problem):
         print(f'{("+ "+self.operand2):>{length}}')
         print(f'{underscore}')
         print(f'{self.result:>{length}}')
-    '''
+        print(f'\nCode: {state}')
         
 
 problems = [ ['SEND','MORE','MONEY'],
-             ["AB", "BA", "CC"]
+             ["AB", "BA", "CC"],
+             ['ONE','ONE','TWO'],
+             ['EARTH','WATER','OCEAN'],
+             ['MEOW','CAT','PURR'],
+             ['CURRY','RICE','LUNCH']   # no solution
              ]
 
     
