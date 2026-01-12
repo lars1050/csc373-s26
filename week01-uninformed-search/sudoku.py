@@ -1,6 +1,6 @@
 from problem import Problem
 
-constraining = False
+constraining = True
 
 class Sudoku(Problem):
     '''
@@ -164,7 +164,6 @@ class Sudoku(Problem):
         return state.count(0)
 
     def pretty_print(self,state):
-        print(f'in prety\n{state}')
         index = 0
         for r in range(self.max_digit):
             for c in range(self.max_digit):
