@@ -40,7 +40,7 @@ class KenKenCSP:
         # key: variable, value is [((var1,var2),fn),((var1,var3),fn),...]
 
         # uniqueness is a constraint between all variables across rows and columns
-        fne = 
+        fne = lambda a,b: a != b
 
         # create a list of constraints for each variable
         self.constraints = {}
@@ -54,18 +54,34 @@ class KenKenCSP:
             for i in range(row,row+self.max_digit):
                 # for each "next" digit in this row
                 for j in range(i+1,row+self.max_digit):
-                    
+                    self.constraints[i].append(((i,j),fne))
+                    self.constraints[j].append(((j,i),fne))
 
 
         # set col constraints
         for col in range(self.max_digit):
             for i in range(col,self.puzzle_size,self.max_digit):
                 for j in range(i+self.max_digit,self.puzzle_size,self.max_digit):
-
-
+                    self.constraints[i].append(((i,j),fne))
+                    self.constraints[j].append(((j,i),fne))
 
         # set mathematical constraints
+        self.constraints[0].append(((0,1),lambda a,b:abs(a-b)==2))
+        self.constraints[1].append(((1,0),lambda a,b:abs(a-b)==2))
 
+        self.constraints[7].append(((7,8), labmda a,b:abs(a-b)==1))
+        self.constraints[8].append(((8,7), labmda a,b:abs(a-b)==1))
+
+        self.constraints[3].append(((3,6), labmda a,b: a/b==2 or b/a==2))
+        self.constraints[6].append(((6,3), labmda a,b: a/b==2 or b/a==2))
+
+        self.constraints[4].append(((4,5), labmda a,b: a/b==3 or b/a==3))
+        self.constraints[5].append(((5,4), labmda a,b: a/b==3 or b/a==3))
+        
+
+
+
+        
         
                     
 

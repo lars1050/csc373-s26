@@ -29,11 +29,11 @@ def solve(problem,algo):
             print('no solution found')
         else:
             print(doms)
-            '''
+            
             for p in problem.solution:
                 right = problem.size - p - 1
                 print(f'|{"   |"*p} Q |{"   |"*right}')
-            '''
+            
     else:
         print(f'ERROR: Algorithm {algo} is not recognized.')
 
