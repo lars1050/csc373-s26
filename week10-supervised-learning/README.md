@@ -32,3 +32,9 @@ Loss options are:
 - Linf : max(p-a) over all examples
 
 where p is the predicted value of the model and a is the actual (target) value.
+
+## To install dependencies
+
+```shell
+pip install -r requirements.txt
+```
